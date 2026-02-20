@@ -1,6 +1,10 @@
-import requests
+import openai
 import uuid
 import os
+import base64
+from config import OPENAI_API_KEY
+
+openai.api_key = OPENAI_API_KEY
 
 TEMP_DIR = "temp"
 
@@ -10,18 +14,16 @@ def generate_image(prompt: str) -> str:
     image_id = str(uuid.uuid4())
     output_path = f"{TEMP_DIR}/{image_id}.png"
 
-    url = f"https://image.pollinations.ai/prompt/{prompt}"
+    response = openai.images.generate(
+        model="gpt-image-1",
+        prompt=prompt,
+        size="1024x1024"
+    )
 
-    try:
-        response = requests.get(url, timeout=20)
-    except requests.exceptions.Timeout:
-        raise Exception("AI lagi lemot 😭 coba lagi bentar")
-
-
-    if response.status_code != 200:
-        raise Exception("Gagal generate gambar dari Pollinations")
+    image_base64 = response.data[0].b64_json
+    image_bytes = base64.b64decode(image_base64)
 
     with open(output_path, "wb") as f:
-        f.write(response.content)
+        f.write(image_bytes)
 
     return output_path

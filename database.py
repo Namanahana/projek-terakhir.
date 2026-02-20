@@ -21,8 +21,7 @@ def init_db():
 
 def seed_data():
     cur.execute("SELECT COUNT(*) FROM quiz")
-    if cur.fetchone()[0] > 0:
-        return  # sudah ada data
+    if cur.fetchone()[0] > 0: return
 
     for theme, questions in QUIZ_AB.items():
         for q in questions:
@@ -30,25 +29,14 @@ def seed_data():
             INSERT INTO quiz (theme, question, A, B, resultA, resultB)
             VALUES (?, ?, ?, ?, ?, ?)
             """, (theme, q["q"], q["A"], q["B"], q["resultA"], q["resultB"]))
-
     conn.commit()
 
 def get_quiz(theme):
     cur.execute("SELECT * FROM quiz WHERE theme=?", (theme,))
     rows = cur.fetchall()
-    if not rows:
-        return None
-
+    if not rows: return None
     row = random.choice(rows)
-
-    return {
-        "id": row[0],
-        "q": row[2],
-        "A": row[3],
-        "B": row[4],
-        "resultA": row[5],
-        "resultB": row[6]
-    }
+    return {"id": row[0], "q": row[2], "A": row[3], "B": row[4], "resultA": row[5], "resultB": row[6]}
 
 init_db()
 seed_data()
